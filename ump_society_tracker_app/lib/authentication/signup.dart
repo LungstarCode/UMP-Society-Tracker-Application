@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:ump_society_tracker_app/authentication/login.dart';
 import 'package:ump_society_tracker_app/databases/db_helper.dart';
@@ -7,6 +6,7 @@ class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _SignupScreenState createState() => _SignupScreenState();
 }
 
@@ -28,8 +28,16 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Account' ,
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.white),),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        title: const Text(
+          'Create Account',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.white),
+        ),
         backgroundColor: const Color.fromRGBO(0, 0, 41, 1.0),
       ),
       backgroundColor: const Color.fromRGBO(0, 0, 41, 1.0),
@@ -54,7 +62,6 @@ class _SignupScreenState extends State<SignupScreen> {
                 dropdownColor: const Color.fromRGBO(0, 0, 41, 1.0),
                 items: const [
                   DropdownMenuItem(value: 'Member', child: Text('Member', style: TextStyle(color: Colors.white))),
-                  DropdownMenuItem(value: 'Admin', child: Text('Admin', style: TextStyle(color: Colors.white))),
                   DropdownMenuItem(value: 'Primary Admin', child: Text('Primary Admin', style: TextStyle(color: Colors.white))),
                 ],
                 onChanged: (value) {
@@ -88,12 +95,11 @@ class _SignupScreenState extends State<SignupScreen> {
                           'position': positionController.text,
                          
                         }
-
-                       
                       };
                       await DatabaseHelper().insertUser(user);
 
                       // Show a customized success message
+                      // ignore: use_build_context_synchronously
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(
@@ -105,7 +111,8 @@ class _SignupScreenState extends State<SignupScreen> {
                       );
 
                       // Navigate to the login screen
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) =>  const LoginScreen()));
+                      // ignore: use_build_context_synchronously
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -121,7 +128,7 @@ class _SignupScreenState extends State<SignupScreen> {
               const SizedBox(height: 20),
               GestureDetector(
                 onTap: () {
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) =>  const LoginScreen()));
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
                 },
                 child: const Text(
                   'Already have an account? Login',
@@ -195,110 +202,72 @@ class _SignupScreenState extends State<SignupScreen> {
       TextFormField(
         controller: passwordController,
         obscureText: _obscurePassword,
-decoration: InputDecoration(
-  labelText: 'Password',
-  labelStyle: const TextStyle(color: Colors.white),
-  enabledBorder: const OutlineInputBorder(
-    borderSide: BorderSide(color: Colors.white),
-  ),
-  border: const OutlineInputBorder(
-    borderSide: BorderSide(color: Colors.white),
-  ),
-  prefixIcon: const Icon(Icons.lock, color: Colors.white),
-  suffixIcon: IconButton(
-    icon: Icon(
-      _obscurePassword ? Icons.visibility : Icons.visibility_off,
-      color: Colors.white,
-    ),
-    onPressed: () {
-      setState(() {
-        _obscurePassword = !_obscurePassword;
-      });
-    },
-  ),
-),
+        decoration: InputDecoration(
+          labelText: 'Password',
+          labelStyle: const TextStyle(color: Colors.white),
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white),
+          ),
+          border: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white),
+          ),
+          prefixIcon: const Icon(Icons.lock, color: Colors.white),
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscurePassword ? Icons.visibility : Icons.visibility_off,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              setState(() {
+                _obscurePassword = !_obscurePassword;
+              });
+            },
+          ),
+        ),
         style: const TextStyle(color: Colors.white),
         validator: (value) => value!.isEmpty ? 'Please enter your password' : null,
       ),
     ];
 
     if (userType == 'Admin') {
-  fields.addAll([
-    const SizedBox(height: 16),
-    TextFormField(
-      controller: societyNameController,
-      decoration: const InputDecoration(
-        labelText: 'Society Name',
-        labelStyle: TextStyle(color: Colors.white),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
+      fields.addAll([
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: societyNameController,
+          decoration: const InputDecoration(
+            labelText: 'Society Name',
+            labelStyle: TextStyle(color: Colors.white),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.white),
+            ),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.white),
+            ),
+            prefixIcon: Icon(Icons.group, color: Colors.white),
+          ),
+          style: const TextStyle(color: Colors.white),
+          validator: (value) => value!.isEmpty ? 'Please enter the society name' : null,
         ),
-        border: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: positionController,
+          decoration: const InputDecoration(
+            labelText: 'Position',
+            labelStyle: TextStyle(color: Colors.white),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.white),
+            ),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.white),
+            ),
+            prefixIcon: Icon(Icons.work, color: Colors.white),
+          ),
+          style: const TextStyle(color: Colors.white),
+          validator: (value) => value!.isEmpty ? 'Please enter your position' : null,
         ),
-        prefixIcon: Icon(Icons.group, color: Colors.white),
-      ),
-      style: const TextStyle(color: Colors.white),
-      validator: (value) => value!.isEmpty ? 'Please enter the society name' : null,
-    ),
-    const SizedBox(height: 16),
-    TextFormField(
-      controller: positionController,
-      decoration: const InputDecoration(
-        labelText: 'Position',
-        labelStyle: TextStyle(color: Colors.white),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-        ),
-        border: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-        ),
-        prefixIcon: Icon(Icons.work, color: Colors.white),
-      ),
-      style: const TextStyle(color: Colors.white),
-      validator: (value) => value!.isEmpty ? 'Please enter your position' : null,
-    ),
-    const SizedBox(height: 16),
-    TextFormField(
-      controller: referenceController,
-      decoration: const InputDecoration(
-        labelText: 'Reference',
-        labelStyle: TextStyle(color: Colors.white),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-        ),
-        border: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-        ),
-        prefixIcon: Icon(Icons.book, color: Colors.white),
-      ),
-      style: const TextStyle(color: Colors.white),
-      validator: (value) => value!.isEmpty ? 'Please enter a reference' : null,
-    ),
-  ]);
-} else if (userType == 'Primary Admin') {
-  fields.addAll([
-    const SizedBox(height: 16),
-    TextFormField(
-      controller: usernameController,
-      decoration: const InputDecoration(
-        labelText: 'Username',
-        labelStyle: TextStyle(color: Colors.white),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-        ),
-        border: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-        ),
-        prefixIcon: Icon(Icons.person, color: Colors.white),
-      ),
-      style: const TextStyle(color: Colors.white),
-      validator: (value) => value!.isEmpty ? 'Please enter your username' : null,
-    ),
-  ]);
-}
+      ]);
+    }
 
-return fields;
+    return fields;
   }
-  
 }

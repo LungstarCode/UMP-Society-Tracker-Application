@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Import for TextInputFormatter
 import 'package:ump_society_tracker_app/authentication/signup.dart';
 import 'package:ump_society_tracker_app/databases/db_helper.dart';
 import 'package:ump_society_tracker_app/home/home.dart';
@@ -7,6 +8,7 @@ class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _LoginScreenState createState() => _LoginScreenState();
 }
 
@@ -31,6 +33,15 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
     _usernameEmailController.dispose();
     super.dispose();
+  }
+
+  void _showErrorToast(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.lightBlue,
+      ),
+    );
   }
 
   Future<void> _login() async {
@@ -60,6 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
         String userType = user!['userType'];
 
+        // ignore: use_build_context_synchronously
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (_) => HomeScreen(
@@ -72,12 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Invalid credentials.'),
-            backgroundColor: Colors.lightBlue,
-          ),
-        );
+        _showErrorToast('Invalid credentials.');
       }
     }
   }
@@ -93,8 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: const Color.fromRGBO(0, 0, 41, 1.0),
         title: const Text(
           'Login',
-          style: TextStyle(fontWeight: FontWeight.bold , fontSize: 24, color: Colors.white), 
-          
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.white),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -176,6 +182,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextFormField(
                     controller: _studentNumberController,
                     style: const TextStyle(color: Colors.white),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(9),
+                    ],
                     decoration: InputDecoration(
                       labelText: 'Student Number',
                       labelStyle: const TextStyle(color: Colors.white),
@@ -196,6 +207,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your student number';
+                      }
+                      if (value.length != 9) {
+                        _showErrorToast('Student number must be exactly 9 digits.');
+                        return null;
                       }
                       return null;
                     },
@@ -251,9 +266,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(10.0),
                       ),
                       backgroundColor: Colors.lightBlue,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
                     ),
-                    child: const Text('Login'),
+                    child: const Text(
+                      'Login',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -261,20 +279,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      "Don't have an account?",
+                      'Don’t have an account?',
                       style: TextStyle(color: Colors.white),
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.of(context).pushReplacement(
+                        Navigator.push(
+                          context,
                           MaterialPageRoute(
                             builder: (context) => const SignupScreen(),
                           ),
                         );
                       },
                       child: const Text(
-                        'Sign up',
-                        style: TextStyle(color: Colors.lightBlue),
+                        'Sign Up',
+                        style: TextStyle(color: Color.fromRGBO(3, 169, 244, 1)),
                       ),
                     ),
                   ],

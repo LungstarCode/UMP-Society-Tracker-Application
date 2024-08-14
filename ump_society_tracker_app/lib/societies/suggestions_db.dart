@@ -70,11 +70,23 @@ class SuggestionsDB {
 
   Future<void> createSuggestion(SuggestionsData suggestion) async {
     final Database db = await instance.database;
-    await db.insert('suggestions', suggestion.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    await db.insert('suggestions', suggestion.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<SuggestionsData>> getSuggestionsBySocietyId(String societyId) async {
+    final Database db = await instance.database;
+    final List<Map<String, dynamic>> maps = await db.query('suggestions',
+        where: 'societyId = ?',
+        whereArgs: [societyId],
+        orderBy: 'timestamp DESC');
+
+    return List.generate(maps.length, (i) {
+      return SuggestionsData.fromMap(maps[i]);
+    });
+  }
+
+  /// Updated method to retrieve all suggestions for a specific society
+  Future<List<SuggestionsData>> getAllSuggestions(String societyId) async {
     final Database db = await instance.database;
     final List<Map<String, dynamic>> maps = await db.query('suggestions',
         where: 'societyId = ?',

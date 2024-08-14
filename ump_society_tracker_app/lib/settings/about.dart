@@ -13,7 +13,7 @@ class AboutScreen extends StatelessWidget {
           'About',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.black,
+        backgroundColor: const Color.fromRGBO(0, 0, 41, 1.0),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {

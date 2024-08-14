@@ -5,6 +5,7 @@ class CreateSociety extends StatefulWidget {
   const CreateSociety({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _CreateSocietyState createState() => _CreateSocietyState();
 }
 
@@ -12,9 +13,10 @@ class _CreateSocietyState extends State<CreateSociety> {
   final _formKey = GlobalKey<FormState>();
   String _name = '';
   String _description = '';
-  String _category = '';
+  String _category = 'Sports'; // Default category
   String _creatorFullName = '';
   String _creatorStudentNumber = '';
+  bool _showOtherCategoryField = false;
 
   void _showToast(String message, Color backgroundColor) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -67,6 +69,7 @@ class _CreateSocietyState extends State<CreateSociety> {
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.white),
                       ),
+                      prefixIcon: Icon(Icons.group, color: Colors.white),
                     ),
                     style: const TextStyle(color: Colors.white),
                     validator: (value) {
@@ -90,6 +93,7 @@ class _CreateSocietyState extends State<CreateSociety> {
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.white),
                       ),
+                      prefixIcon: Icon(Icons.description, color: Colors.white),
                     ),
                     style: const TextStyle(color: Colors.white),
                     maxLines: 3,
@@ -104,7 +108,7 @@ class _CreateSocietyState extends State<CreateSociety> {
                     },
                   ),
                   const SizedBox(height: 12),
-                  TextFormField(
+                  DropdownButtonFormField<String>(
                     decoration: const InputDecoration(
                       labelText: 'Category',
                       labelStyle: TextStyle(color: Colors.white),
@@ -114,11 +118,33 @@ class _CreateSocietyState extends State<CreateSociety> {
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.white),
                       ),
+                      prefixIcon: Icon(Icons.category, color: Colors.white),
                     ),
-                    style: const TextStyle(color: Colors.white),
+                    dropdownColor: const Color.fromRGBO(0, 9, 41, 1.0), // Dark blue background
+                    style: const TextStyle(color: Colors.white), // White text
+                    value: _category,
+                    items: <String>[
+                      'Sports',
+                      'Educational',
+                      'Religion',
+                      'Cultural',
+                      'Christianity',
+                      'Other',
+                    ].map((String category) {
+                      return DropdownMenuItem<String>(
+                        value: category,
+                        child: Text(category),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _category = newValue!;
+                        _showOtherCategoryField = _category == 'Other';
+                      });
+                    },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter the category';
+                        return 'Please select a category';
                       }
                       return null;
                     },
@@ -126,6 +152,33 @@ class _CreateSocietyState extends State<CreateSociety> {
                       _category = value!;
                     },
                   ),
+                  const SizedBox(height: 12),
+                  if (_showOtherCategoryField)
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        labelText: 'Specify Other Category',
+                        labelStyle: TextStyle(color: Colors.white),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
+                        prefixIcon: Icon(Icons.text_fields, color: Colors.white),
+                      ),
+                      style: const TextStyle(color: Colors.white),
+                      validator: (value) {
+                        if (_category == 'Other' && (value == null || value.isEmpty)) {
+                          return 'Please specify the other category';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        if (_category == 'Other') {
+                          _category = value!;
+                        }
+                      },
+                    ),
                   const SizedBox(height: 12),
                   TextFormField(
                     decoration: const InputDecoration(
@@ -137,6 +190,7 @@ class _CreateSocietyState extends State<CreateSociety> {
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.white),
                       ),
+                      prefixIcon: Icon(Icons.person, color: Colors.white),
                     ),
                     style: const TextStyle(color: Colors.white),
                     validator: (value) {
@@ -160,6 +214,7 @@ class _CreateSocietyState extends State<CreateSociety> {
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.white),
                       ),
+                      prefixIcon: Icon(Icons.badge, color: Colors.white),
                     ),
                     style: const TextStyle(color: Colors.white),
                     validator: (value) {

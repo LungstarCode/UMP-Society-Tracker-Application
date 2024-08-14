@@ -1,28 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // For TextInputFormatter
+import 'package:ump_society_tracker_app/societies/membership_db.dart';
+import 'package:ump_society_tracker_app/societies/society_db.dart';
 
 class JoinSociety extends StatefulWidget {
+  final Society society;
+
+  const JoinSociety({super.key, required this.society});
+
   @override
+  // ignore: library_private_types_in_public_api
   _JoinSocietyState createState() => _JoinSocietyState();
 }
 
 class _JoinSocietyState extends State<JoinSociety> {
-  final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
+  final _surnameController = TextEditingController();
+  final _studentIdController = TextEditingController();
 
-  void _submitForm() {
-    if (_formKey.currentState?.validate() ?? false) {
-      // Handle form submission
-      final name = _nameController.text;
-      final email = _emailController.text;
-      
-      // For demonstration purposes
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _surnameController.dispose();
+    _studentIdController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _joinSociety(BuildContext context) async {
+    final name = _nameController.text.trim();
+    final surname = _surnameController.text.trim();
+    final studentId = _studentIdController.text.trim();
+
+    if (name.isEmpty || surname.isEmpty || studentId.isEmpty || studentId.length != 9) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Joining Society: $name with email: $email')),
+        const SnackBar(content: Text("Please fill out all fields with valid information")),
+      );
+      return;
+    }
+
+    try {
+      // Check if the user is already a member of the society
+      final isMember = await MembershipDB.checkMembership(studentId, widget.society.name);
+
+      if (isMember) {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("You are already a member of this society")),
+        );
+        return;
+      }
+
+      // Add the user to the society
+      await MembershipDB.addMember(Member(
+        studentId: studentId,
+        name: name,
+        surname: surname,
+        societyName: widget.society.name,
+      ));
+
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Successfully joined the society")),
       );
 
-      // You can navigate back or clear the form as needed
-      Navigator.pop(context);
+      // ignore: use_build_context_synchronously
+      Navigator.of(context).pop(); // Close the screen
+
+    } catch (e) {
+      // Handle errors (e.g., database issues)
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to join the society: ${e.toString()}")),
+      );
     }
   }
 
@@ -30,76 +79,103 @@ class _JoinSocietyState extends State<JoinSociety> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(0, 0, 41, 1.0),
-        title: const Text(
-          'Join Society',
-          style: TextStyle(
+        backgroundColor: const Color.fromRGBO(0, 0, 41, 1.0), // Dark blue background
+        title: Text(
+          "Join ${widget.society.name}",
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.of(context).pop(); // Go back to the previous screen
+          },
         ),
       ),
-      body: Padding(
+      body: Container(
+        color: const Color.fromRGBO(0, 0, 41, 1.0), // Dark blue background
         padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Name',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your name';
-                  }
-                  return null;
-                },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Enter your details to join ${widget.society.name}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  if (!RegExp(r'^[\w-]+@([\w-]+\.)+[a-zA-Z]{2,7}$').hasMatch(value)) {
-                    return 'Please enter a valid email address';
-                  }
-                  return null;
-                },
+            ),
+            const SizedBox(height: 16.0),
+            TextField(
+              controller: _nameController,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                labelStyle: TextStyle(color: Colors.white),
+                border: OutlineInputBorder(),
               ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _submitForm,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.lightBlue, // Sky blue color
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12), // Rounded corners
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _surnameController,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                labelText: 'Surname',
+                labelStyle: TextStyle(color: Colors.white),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _studentIdController,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                labelText: 'Student ID',
+                labelStyle: TextStyle(color: Colors.white),
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(9), // Limit input to 9 digits
+              ],
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Go back to the previous screen
+                  },
+                  child: const Text(
+                    "Cancel",
+                    style: TextStyle(color: Colors.white),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text(
-                  'Join',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () => _joinSociety(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromRGBO(3, 169, 244, 1), // Light blue button color
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0), // Curved corners
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+                  ),
+                  child: const Text(
+                    "Join",
+                    style: TextStyle(fontSize: 16 , color: Colors.white),
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
       ),
-      backgroundColor: const Color.fromRGBO(0, 0, 41, 1.0),
     );
   }
 }

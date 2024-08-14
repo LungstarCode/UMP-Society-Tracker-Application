@@ -8,6 +8,7 @@ class GalleryWidget extends StatefulWidget {
   const GalleryWidget({super.key, this.images});
 
   @override
+  // ignore: library_private_types_in_public_api
   _GalleryWidgetState createState() => _GalleryWidgetState();
 }
 

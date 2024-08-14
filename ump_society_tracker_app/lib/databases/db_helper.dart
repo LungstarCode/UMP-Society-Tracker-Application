@@ -145,4 +145,14 @@ class DatabaseHelper {
   List<Map<String, dynamic>> users = await db.query('users', where: 'email = ?', whereArgs: [email]);
   return users.isNotEmpty ? users.first : null;
 }
+
+Future<void> updateUserPassword(String email, String newPassword) async {
+  final db = await database;
+  await db.update(
+    'users',
+    {'password': newPassword},
+    where: 'email = ?',
+    whereArgs: [email],
+  );
+}
 }

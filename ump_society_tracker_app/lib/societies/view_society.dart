@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:ump_society_tracker_app/authentication/login.dart';
+import 'package:ump_society_tracker_app/databases/db_helper.dart';
+import 'package:ump_society_tracker_app/events/create_event.dart';
+import 'package:ump_society_tracker_app/events/events_list.dart';
+import 'package:ump_society_tracker_app/societies/join_society.dart';
 import 'package:ump_society_tracker_app/societies/society_db.dart';
-import 'package:ump_society_tracker_app/societies/suggestions_db.dart';
-
-import 'package:ump_society_tracker_app/society_store/widget_haven.dart';
+import 'package:ump_society_tracker_app/societies/view_members.dart';
+import 'package:ump_society_tracker_app/societies/view_suggestions.dart';
+import 'submit_suggestion.dart'; 
 
 class ViewSociety extends StatefulWidget {
   final Society society;
@@ -10,243 +15,21 @@ class ViewSociety extends StatefulWidget {
   const ViewSociety({super.key, required this.society});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ViewSocietyState createState() => _ViewSocietyState();
 }
 
 class _ViewSocietyState extends State<ViewSociety> {
-  final List<Widget> _canvas = [];
+  late Future<Map<String, dynamic>?> _currentUser;
 
-  Future<void> _navigateToWidgetHaven(BuildContext context) async {
-    TextEditingController studentNumberController = TextEditingController();
-    bool isAdmin = false;
-
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Enter Student Number"),
-          content: TextField(
-            controller: studentNumberController,
-            decoration: const InputDecoration(hintText: "Student Number"),
-          ),
-          actions: [
-            TextButton(
-              child: const Text("Cancel"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text("Submit"),
-              onPressed: () async {
-                String studentNumber = studentNumberController.text;
-                if (studentNumber == widget.society.adminId) {
-                  isAdmin = true;
-                }
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-
-    if (isAdmin) {
-      final newWidgets = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => WidgetHavenDB(society: widget.society),
-        ),
-      );
-
-      if (newWidgets != null) {
-        setState(() {
-          _canvas.addAll(newWidgets);
-        });
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Only accessible for Admins")),
-      );
-    }
+  @override
+  void initState() {
+    super.initState();
+    _currentUser = _fetchCurrentUser(); // Fetch user information when the widget is initialized
   }
 
-  Future<void> _showSuggestionBox(BuildContext context) async {
-    TextEditingController studentNumberController = TextEditingController();
-    TextEditingController suggestionController = TextEditingController();
-    ValueNotifier<bool> consentGiven = ValueNotifier<bool>(false);
-
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Submit Suggestion"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: studentNumberController,
-                decoration: const InputDecoration(hintText: "Student Number (Optional)"),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: suggestionController,
-                decoration: const InputDecoration(hintText: "Enter your suggestion"),
-                minLines: 3,
-                maxLines: 5,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  ValueListenableBuilder(
-                    valueListenable: consentGiven,
-                    builder: (context, value, child) {
-                      return Checkbox(
-                        value: value,
-                        onChanged: (bool? newValue) {
-                          consentGiven.value = newValue ?? false;
-                        },
-                      );
-                    },
-                  ),
-                  const Text("I consent to submit this suggestion"),
-                ],
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              child: const Text("Cancel"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text("Submit"),
-              onPressed: () async {
-                if (!consentGiven.value) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Please consent to submit your suggestion")),
-                  );
-                  return;
-                }
-
-                String studentNumber = studentNumberController.text;
-                String suggestion = suggestionController.text;
-
-                await SuggestionsDB.instance.createSuggestion(
-                  SuggestionsData(
-                    id: 0,
-                    societyId: widget.society.name,
-                    studentNumber: studentNumber,
-                    suggestion: suggestion,
-                    timestamp: DateTime.now(),
-                  ),
-                );
-
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Suggestion submitted")),
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _viewSuggestions(BuildContext context) async {
-    TextEditingController studentNumberController = TextEditingController();
-    bool isAdmin = false;
-
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Enter Student Number"),
-          content: TextField(
-            controller: studentNumberController,
-            decoration: const InputDecoration(hintText: "Student Number"),
-          ),
-          actions: [
-            TextButton(
-              child: const Text("Cancel"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text("Submit"),
-              onPressed: () async {
-                String studentNumber = studentNumberController.text;
-                if (studentNumber == widget.society.adminId) {
-                  isAdmin = true;
-                }
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-
-    if (isAdmin) {
-      List<SuggestionsData> suggestions = await SuggestionsDB.instance.getSuggestionsBySocietyId(widget.society.name);
-
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Suggestions", style: TextStyle(color: Colors.black)),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: List.generate(suggestions.length, (index) {
-                  return Card(
-                    color: const Color.fromRGBO(0, 0, 41, 1.0),
-                    child: ListTile(
-                      title: Text(
-                        suggestions[index].suggestion,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            suggestions[index].studentNumber.isNotEmpty
-                                ? "Student Number: ${suggestions[index].studentNumber}"
-                                : "Student Number: Unknown",
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          Text(
-                            "Submitted on: ${suggestions[index].timestamp.toLocal()}",
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ),
-            actions: [
-              TextButton(
-                child: const Text("Close", style: TextStyle(color: Colors.black)),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-            backgroundColor: const Color.fromRGBO(255, 255, 255, 1.0),
-          );
-        },
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Only accessible for Admins")),
-      );
-    }
+  Future<Map<String, dynamic>?> _fetchCurrentUser() async {
+    return await DatabaseHelper().getCurrentUser('society.admin@ump.ac.za');
   }
 
   @override
@@ -256,18 +39,9 @@ class _ViewSocietyState extends State<ViewSociety> {
         backgroundColor: const Color.fromRGBO(0, 0, 41, 1.0),
         title: Text(
           widget.society.name,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.list, color: Colors.white),
-            onPressed: () => _viewSuggestions(context),
-          ),
-        ],
       ),
       body: Container(
         color: const Color.fromRGBO(0, 0, 41, 1.0),
@@ -285,24 +59,14 @@ class _ViewSocietyState extends State<ViewSociety> {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => _navigateToWidgetHaven(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.lightBlue,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Widget Haven',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => _showSuggestionBox(context),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SubmitSuggestionScreen(society: widget.society),
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.lightBlue,
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -319,12 +83,130 @@ class _ViewSocietyState extends State<ViewSociety> {
                 ],
               ),
               const SizedBox(height: 16),
-              ..._canvas,
+              // Place for other widgets
             ],
           ),
         ),
       ),
       backgroundColor: const Color.fromRGBO(0, 0, 41, 1.0),
+      drawer: Drawer(
+        child: Container(
+          color: const Color.fromRGBO(0, 0, 41, 1.0),
+          child: FutureBuilder<Map<String, dynamic>?>(
+            future: _currentUser,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return const Center(child: Text('Error fetching user data'));
+              } else if (snapshot.hasData) {
+                var user = snapshot.data;
+                return Column(
+                  children: [
+                    UserAccountsDrawerHeader(
+                      accountName: Text(user?['name'] ?? 'No Name', style: const TextStyle(color: Colors.white)),
+                      accountEmail: Text(user?['email'] ?? 'No Email', style: const TextStyle(color: Colors.white)),
+                      decoration: const BoxDecoration(
+                        color: Color.fromRGBO(0, 0, 41, 1.0),
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView(
+                        padding: EdgeInsets.zero,
+                        children: [
+                          ListTile(
+                            leading: const Icon(Icons.feedback, color: Colors.orange),
+                            title: const Text('Submit Suggestion', style: TextStyle(color: Colors.white)),
+                            onTap: () {
+                              Navigator.pop(context); // Close the drawer
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SubmitSuggestionScreen(society: widget.society),
+                                ),
+                              );
+                            },
+                          ),
+                          // Add other ListTile items as needed
+                          ListTile(
+                            leading: const Icon(Icons.view_list, color: Colors.orange),
+                            title: const Text('View Suggestions', style: TextStyle(color: Colors.white)),
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ViewSuggestions(society: widget.society),
+                                ),
+                              );
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.event, color: Colors.orange),
+                            title: const Text('Create Event', style: TextStyle(color: Colors.white)),
+                            onTap: () {
+                              Navigator.push(context, 
+                              MaterialPageRoute(builder: (context) => CreateEventPage(societyId: widget.society.adminId)));
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.group, color: Colors.orange),
+                            title: const Text('View Members', style: TextStyle(color: Colors.white)),
+                            onTap: () {
+                              Navigator.push(context,
+                              MaterialPageRoute(builder: (context) => ViewMembers(society: widget.society))
+                              );
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.event_available, color: Colors.orange),
+                            title: const Text('View Events', style: TextStyle(color: Colors.white)),
+                            onTap: () {
+                              Navigator.push(context ,
+                              MaterialPageRoute(builder: (context) => EventsListPage(societyId: widget.society.adminId, userId: '',)));
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.insert_chart, color: Colors.orange),
+                            title: const Text('Generate Report', style: TextStyle(color: Colors.white)),
+                            onTap: () {
+                              // Add your navigation code here
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.card_membership, color: Colors.orange),
+                            title: const Text('Join Society', style: TextStyle(color: Colors.white)),
+                            onTap: () {
+                              Navigator.push(
+                                context, 
+                                MaterialPageRoute(builder: (context) => JoinSociety(society: widget.society,) )
+                              );
+                              
+                            },
+                          ),
+
+                        
+                          ListTile(
+                            leading: const Icon(Icons.logout, color: Colors.orange),
+                            title: const Text('Logout', style: TextStyle(color: Colors.white)),
+                            onTap: () {
+                              Navigator.push(context, 
+                              MaterialPageRoute(builder: (context) => const LoginScreen()));
+                            },
+                          ),
+
+
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return const Center(child: Text('No user data available'));
+            },
+          ),
+        ),
+      ),
     );
   }
 }

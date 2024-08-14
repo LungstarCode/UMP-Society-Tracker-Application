@@ -7,6 +7,7 @@ class EditSociety extends StatefulWidget {
   const EditSociety({super.key, required this.society});
 
   @override
+  // ignore: library_private_types_in_public_api
   _EditSocietyState createState() => _EditSocietyState();
 }
 
@@ -153,6 +154,7 @@ class _EditSocietyState extends State<EditSociety> {
                       );
 
                       _showToast('Society updated successfully', Colors.lightBlueAccent);
+                      // ignore: use_build_context_synchronously
                       Navigator.pop(context);
                     }
                   },

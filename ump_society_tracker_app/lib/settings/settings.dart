@@ -10,11 +10,13 @@ import 'package:ump_society_tracker_app/settings/setting_search.dart';
 import 'package:ump_society_tracker_app/settings/terms_&_conditions.dart';
 import 'package:ump_society_tracker_app/societies/manage_society.dart';
 
+
 class SettingsScreen extends StatelessWidget {
+
   final Function(ThemeData) onThemeChanged;
   
-  const SettingsScreen({super.key, required this.onThemeChanged});
-  
+  const SettingsScreen({super.key, required this.onThemeChanged, });
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +52,7 @@ class SettingsScreen extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ChangePasswordScreen()),
+                  MaterialPageRoute(builder: (context) => const ChangePasswordScreen(email: '',)),
                 );
               },
             ),
@@ -84,7 +86,7 @@ class SettingsScreen extends StatelessWidget {
               icon: Icons.event,
               text: 'Event Management',
               onTap: () {
-                // Add your onTap logic here
+                 //
               },
             ),
             _buildSettingsTile(
@@ -214,7 +216,7 @@ class SettingsScreen extends StatelessWidget {
 
   void _searchSettings(BuildContext context, String query) {
     final List<Map<String, dynamic>> tiles = [
-      {'icon': Icons.lock, 'text': 'Change Password', 'onTap': () => const ChangePasswordScreen()},
+      {'icon': Icons.lock, 'text': 'Change Password', 'onTap': () => const ChangePasswordScreen(email: '',)},
       {'icon': Icons.notifications, 'text': 'Notification Preferences', 'onTap': () => const NotificationsPreferenceScreen()},
       {'icon': Icons.group, 'text': 'Manage Societies', 'onTap': () => const ManageSocietiesScreen(
         isAdmin: true,

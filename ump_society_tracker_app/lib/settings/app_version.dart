@@ -22,6 +22,7 @@ class AppVersionInfoScreen extends StatelessWidget {
         );
 
         try {
+          // ignore: deprecated_member_use
           await launch(emailUri.toString());
           Fluttertoast.showToast(
             msg: "Feedback successfully sent!",

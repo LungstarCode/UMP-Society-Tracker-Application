@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:ump_society_tracker_app/authentication/change_password.dart';
 import 'package:ump_society_tracker_app/authentication/login.dart';
-import 'package:ump_society_tracker_app/authentication/signup.dart';
 import 'package:ump_society_tracker_app/databases/db_helper.dart';
 import 'package:ump_society_tracker_app/profile/edit_profile.dart';
 import 'package:ump_society_tracker_app/settings/settings.dart';
@@ -26,7 +26,10 @@ class HomeScreen extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _HomeScreenState createState() => _HomeScreenState();
+
+  
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -76,6 +79,9 @@ class _HomeScreenState extends State<HomeScreen> {
       (route) => false,
     );
   }
+
+
+
 
   final List<Society> _dummySocieties = [
     Society(name: 'Thrive Students', description: 'A society for thriving students', category: ''),
@@ -296,36 +302,36 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
+                    
                     ListTile(
-  title: ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      foregroundColor: Colors.white,
-      backgroundColor: Colors.lightBlue, // White text color
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      minimumSize: const Size(double.infinity, 36), // Make button take full width
-    ),
-    onPressed: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const SignupScreen()),
-      );
-    },
-    child: const Text('Signup'),
-  ),
-),
-                    ListTile(
+                      leading: const Icon(Icons.settings, color: Colors.orange),
                       title: const Text(
                         'Settings',
                         style: TextStyle(color: Colors.white),
                       ),
                       onTap: () {
-                        // Handle navigation to Settings
+                        Navigator.push(
+                          context, 
+                          // ignore: avoid_types_as_parameter_names, non_constant_identifier_names
+                          MaterialPageRoute(builder: (context) => SettingsScreen(onThemeChanged: (ThemeData ) {  },) )
+                        );
+                      },
+                    ),
+                     ListTile(
+                      leading: const Icon(Icons.password, color: Colors.orange),
+                      title: const Text(
+                        'Change Password',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context, 
+                          MaterialPageRoute(builder: (context) => ChangePasswordScreen(email: widget.email) )
+                        );
                       },
                     ),
                     ListTile(
+                      leading: const Icon(Icons.notifications, color: Colors.orange),
                       title: const Text(
                         'Notifications',
                         style: TextStyle(color: Colors.white),
@@ -335,6 +341,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                     ListTile(
+                      leading: const Icon(Icons.chat, color: Colors.orange),
                       title: const Text(
                         'Chats',
                         style: TextStyle(color: Colors.white),
@@ -344,12 +351,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                     ListTile(
+                      leading: const Icon(Icons.verified_user, color: Colors.orange),
                       title: const Text(
                         'Profile',
                         style: TextStyle(color: Colors.white),
                       ),
                       onTap: () {
-                        // Handle navigation to Profile
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => EditProfileScreen(
+                                    fullName: widget.fullName,
+                                    email: widget.email,
+                              
+                                    profileImageUrl: profileImageUrl,
+                                  ),)
+                        );
                       },
                     ),
                   ],
@@ -358,7 +374,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Align(
                 alignment: Alignment.bottomRight,
                 child: ListTile(
-                  leading: const Icon(Icons.exit_to_app, color: Colors.white),
+                  leading: const Icon(Icons.exit_to_app, color: Colors.orange),
                   title: const Text(
                     'Logout',
                     style: TextStyle(color: Colors.white),
@@ -474,7 +490,8 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => SettingsScreen(onThemeChanged: (ThemeData ) {  },),
+                // ignore: avoid_types_as_parameter_names, non_constant_identifier_names
+                builder: (context) => SettingsScreen(onThemeChanged: (ThemeData ) {},),
               ),
             );
             

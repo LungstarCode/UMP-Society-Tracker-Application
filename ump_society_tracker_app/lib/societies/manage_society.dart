@@ -60,6 +60,7 @@ class ManageSocietiesScreen extends StatelessWidget {
             }),
             _buildListItem(Icons.home, 'Home', () {
               // Navigate to Home screen
+              
             }),
             _buildListItem(Icons.settings, 'Settings', () {
               // Navigate to Settings screen

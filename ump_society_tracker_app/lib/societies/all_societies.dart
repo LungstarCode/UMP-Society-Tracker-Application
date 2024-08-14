@@ -123,7 +123,7 @@ class _AllSocietiesState extends State<AllSocieties> {
                   } else if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('No societies found.'));
+                    return const Center(child: Text('No societies found.' , style: TextStyle(color: Colors.white , fontSize: 20 ),));
                   } else {
                     return ListView.builder(
                       itemCount: snapshot.data!.length,

@@ -1,3 +1,7 @@
+// ignore: duplicate_ignore
+// ignore: file_names
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 
 class TermsAndConditionsScreen extends StatelessWidget {
@@ -12,7 +16,7 @@ class TermsAndConditionsScreen extends StatelessWidget {
           'Terms and Conditions',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.black,
+        backgroundColor: const Color.fromRGBO(0, 0, 41, 1.0),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
@@ -100,7 +104,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(0, 0, 41, 1.0),
+      
       appBar: AppBar(
         title: const Text(
           'Privacy Policy',

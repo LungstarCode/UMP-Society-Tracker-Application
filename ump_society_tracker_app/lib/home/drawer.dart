@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ump_society_tracker_app/authentication/change_password.dart';
@@ -137,6 +139,7 @@ class AppDrawer extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
+                        // ignore: avoid_types_as_parameter_names
                         MaterialPageRoute(builder: (context) => SettingsScreen(onThemeChanged: (ThemeData) {})),
                       );
                     },

@@ -8,6 +8,7 @@ class EditSocietyScreen extends StatefulWidget {
   const EditSocietyScreen({super.key, required this.societyName});
 
   @override
+  // ignore: library_private_types_in_public_api
   _EditSocietyScreenState createState() => _EditSocietyScreenState();
 }
 

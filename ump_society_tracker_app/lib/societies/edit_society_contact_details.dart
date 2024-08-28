@@ -7,6 +7,7 @@ class EditContactDetailsScreen extends StatefulWidget {
   const EditContactDetailsScreen({super.key, required this.adminId});
 
   @override
+  // ignore: library_private_types_in_public_api
   _EditContactDetailsScreenState createState() => _EditContactDetailsScreenState();
 }
 
@@ -16,7 +17,9 @@ class _EditContactDetailsScreenState extends State<EditContactDetailsScreen> {
   final TextEditingController _cellNumberController = TextEditingController();
   final TextEditingController _whatsappGroupLinkController = TextEditingController();
 
+  // ignore: prefer_final_fields
   bool _isLoading = true;
+  // ignore: unused_field
   bool _updateSuccess = false;
 
   @override
@@ -45,6 +48,7 @@ class _EditContactDetailsScreenState extends State<EditContactDetailsScreen> {
         _updateSuccess = true;
       });
 
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Contact details updated successfully.'),
@@ -53,12 +57,14 @@ class _EditContactDetailsScreenState extends State<EditContactDetailsScreen> {
       );
 
       // Perform animation and navigate back
+      // ignore: use_build_context_synchronously
       Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {
       setState(() {
         _updateSuccess = false;
       });
 
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Failed to update contact details. Please try again.'),

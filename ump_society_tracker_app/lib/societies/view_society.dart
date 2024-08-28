@@ -3,11 +3,14 @@ import 'package:ump_society_tracker_app/authentication/login.dart';
 import 'package:ump_society_tracker_app/databases/db_helper.dart';
 import 'package:ump_society_tracker_app/events/create_event.dart';
 import 'package:ump_society_tracker_app/events/events_list.dart';
+import 'package:ump_society_tracker_app/societies/edit_society.dart';
 import 'package:ump_society_tracker_app/societies/join_society.dart';
 import 'package:ump_society_tracker_app/societies/society_db.dart';
+import 'package:ump_society_tracker_app/societies/society_details.dart';
+import 'package:ump_society_tracker_app/societies/society_notifications.dart';
+import 'package:ump_society_tracker_app/societies/submit_suggestion.dart';
 import 'package:ump_society_tracker_app/societies/view_members.dart';
 import 'package:ump_society_tracker_app/societies/view_suggestions.dart';
-import 'submit_suggestion.dart'; 
 
 class ViewSociety extends StatefulWidget {
   final Society society;
@@ -15,7 +18,6 @@ class ViewSociety extends StatefulWidget {
   const ViewSociety({super.key, required this.society});
 
   @override
-  // ignore: library_private_types_in_public_api
   _ViewSocietyState createState() => _ViewSocietyState();
 }
 
@@ -41,51 +43,27 @@ class _ViewSocietyState extends State<ViewSociety> {
           widget.society.name,
           style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.card_membership),
+            color: Colors.white,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => JoinSociety(society: widget.society),
+                ),
+              );
+            },
+          ),
+        ],
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Container(
         color: const Color.fromRGBO(0, 0, 41, 1.0),
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                widget.society.description,
-                style: const TextStyle(fontSize: 18, color: Colors.white),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SubmitSuggestionScreen(society: widget.society),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.lightBlue,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Submit Suggestion',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              // Place for other widgets
-            ],
-          ),
+          child: SocietyDetail(society: widget.society), // Use the SocietyDetail widget here
         ),
       ),
       backgroundColor: const Color.fromRGBO(0, 0, 41, 1.0),
@@ -127,7 +105,6 @@ class _ViewSocietyState extends State<ViewSociety> {
                               );
                             },
                           ),
-                          // Add other ListTile items as needed
                           ListTile(
                             leading: const Icon(Icons.view_list, color: Colors.orange),
                             title: const Text('View Suggestions', style: TextStyle(color: Colors.white)),
@@ -145,16 +122,23 @@ class _ViewSocietyState extends State<ViewSociety> {
                             leading: const Icon(Icons.event, color: Colors.orange),
                             title: const Text('Create Event', style: TextStyle(color: Colors.white)),
                             onTap: () {
-                              Navigator.push(context, 
-                              MaterialPageRoute(builder: (context) => CreateEventPage(societyId: widget.society.adminId)));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CreateEventPage(societyId: widget.society.adminId),
+                                ),
+                              );
                             },
                           ),
                           ListTile(
                             leading: const Icon(Icons.group, color: Colors.orange),
                             title: const Text('View Members', style: TextStyle(color: Colors.white)),
                             onTap: () {
-                              Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => ViewMembers(society: widget.society))
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ViewMembers(society: widget.society),
+                                ),
                               );
                             },
                           ),
@@ -162,8 +146,15 @@ class _ViewSocietyState extends State<ViewSociety> {
                             leading: const Icon(Icons.event_available, color: Colors.orange),
                             title: const Text('View Events', style: TextStyle(color: Colors.white)),
                             onTap: () {
-                              Navigator.push(context ,
-                              MaterialPageRoute(builder: (context) => EventsListPage(societyId: widget.society.adminId, userId: '',)));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EventsListPage(
+                                    societyId: widget.society.adminId,
+                                    userId: '',
+                                  ),
+                                ),
+                              );
                             },
                           ),
                           ListTile(
@@ -178,24 +169,48 @@ class _ViewSocietyState extends State<ViewSociety> {
                             title: const Text('Join Society', style: TextStyle(color: Colors.white)),
                             onTap: () {
                               Navigator.push(
-                                context, 
-                                MaterialPageRoute(builder: (context) => JoinSociety(society: widget.society,) )
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => JoinSociety(society: widget.society),
+                                ),
                               );
-                              
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.notification_add, color: Colors.orange),
+                            title: const Text('Societies Notifications', style: TextStyle(color: Colors.white)),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const SocietyNotificationsScreen(userId: '220329966'),
+                                ),
+                              );
                             },
                           ),
 
-                        
+                           ListTile(
+                            leading: const Icon(Icons.edit, color: Colors.orange),
+                            title: const Text('Edit Society', style: TextStyle(color: Colors.white)),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EditSocietyScreen(societyName: widget.society.name),
+                                ),
+                              );
+                            },
+                          ),
                           ListTile(
                             leading: const Icon(Icons.logout, color: Colors.orange),
                             title: const Text('Logout', style: TextStyle(color: Colors.white)),
                             onTap: () {
-                              Navigator.push(context, 
-                              MaterialPageRoute(builder: (context) => const LoginScreen()));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                              );
                             },
                           ),
-
-
                         ],
                       ),
                     ),
@@ -207,6 +222,64 @@ class _ViewSocietyState extends State<ViewSociety> {
           ),
         ),
       ),
+      bottomNavigationBar: BottomAppBar(
+        color: const Color.fromRGBO(0, 0, 41, 1.0),
+        shape: const CircularNotchedRectangle(),
+        child: IconTheme(
+          data: const IconThemeData(color: Colors.white),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildBottomBarIcon(Icons.home, 'Home', () {
+                Navigator.pop(context); // Navigates back to the home screen or previous screen
+              }),
+              _buildBottomBarIcon(Icons.feedback, 'Suggestion', () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SubmitSuggestionScreen(society: widget.society),
+                  ),
+                );
+              }),
+              _buildBottomBarIcon(Icons.card_membership, 'Join', () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => JoinSociety(society: widget.society),
+                  ),
+                );
+              }),
+              _buildBottomBarIcon(Icons.event, 'Events', () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EventsListPage(
+                      societyId: widget.society.adminId,
+                      userId: '',
+                    ),
+                  ),
+                );
+              }),
+              _buildBottomBarIcon(Icons.group, 'Members', () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ViewMembers(society: widget.society),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomBarIcon(IconData icon, String label, VoidCallback onPressed) {
+    return IconButton(
+      icon: Icon(icon),
+      onPressed: onPressed,
+      tooltip: label,
     );
   }
 }

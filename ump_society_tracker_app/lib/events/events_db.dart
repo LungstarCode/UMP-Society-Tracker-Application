@@ -190,4 +190,31 @@ class EventsDB {
       return [];
     }
   }
+
+
+  static Future<List<Event>> retrieveUserRsvps(String userId) async {
+  final db = await _initializeDB();
+  final List<Map<String, dynamic>> queryResult = await db.query(
+    'events',
+    where: 'rsvps LIKE ?',
+    whereArgs: ['%$userId%'],
+  );
+
+  return List.generate(queryResult.length, (i) {
+    return Event(
+      id: queryResult[i]['id'],
+      name: queryResult[i]['name'],
+      date: queryResult[i]['date'],
+      time: queryResult[i]['time'],
+      venue: queryResult[i]['venue'],
+      duration: queryResult[i]['duration'],
+      seats: queryResult[i]['seats'],
+      theme: queryResult[i]['theme'],
+      description: queryResult[i]['description'],
+      societyId: queryResult[i]['society_id'],
+      rsvps: (queryResult[i]['rsvps'] as String).split(','),
+    );
+  });
+}
+
 }

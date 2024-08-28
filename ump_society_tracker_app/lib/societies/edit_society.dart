@@ -1,187 +1,164 @@
 import 'package:flutter/material.dart';
-import 'society_db.dart'; // Import your society database functions
+import 'package:ump_society_tracker_app/societies/edit_society_contact_details.dart';
+import 'package:ump_society_tracker_app/societies/society_db.dart';
 
-class EditSociety extends StatefulWidget {
-  final Society society;
+class EditSocietyScreen extends StatefulWidget {
+  final String societyName;
 
-  const EditSociety({super.key, required this.society});
+  const EditSocietyScreen({super.key, required this.societyName});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _EditSocietyState createState() => _EditSocietyState();
+  _EditSocietyScreenState createState() => _EditSocietyScreenState();
 }
 
-class _EditSocietyState extends State<EditSociety> {
-  final _formKey = GlobalKey<FormState>();
-  late String _name;
-  late String _description;
-  late String _category;
+class _EditSocietyScreenState extends State<EditSocietyScreen> {
+  final TextEditingController _adminIdController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _categoryController = TextEditingController();
+
+  bool _isAuthorized = false;
+  Society? _society;
 
   @override
   void initState() {
     super.initState();
-    // Initialize form fields with existing society details
-    _name = widget.society.name;
-    _description = widget.society.description;
-    _category = widget.society.category;
+    _loadSocietyDetails();
   }
 
-  void _showToast(String message, Color backgroundColor) {
+  Future<void> _loadSocietyDetails() async {
+    final society = await SocietyDB.retrieveSocietyByName(widget.societyName);
+    if (society != null) {
+      setState(() {
+        _society = society;
+        _nameController.text = society.name;
+        _descriptionController.text = society.description;
+        _categoryController.text = society.category;
+      });
+    }
+  }
+
+  Future<void> _validateAdmin(String adminId) async {
+    if (_society != null && _society!.adminId == adminId) {
+      setState(() {
+        _isAuthorized = true;
+      });
+    } else {
+      _showSnackBar('Invalid Admin ID. Access Denied.');
+      setState(() {
+        _isAuthorized = false;
+      });
+    }
+  }
+
+  void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: backgroundColor,
-        duration: const Duration(seconds: 2),
-        action: SnackBarAction(
-          label: 'Cancel',
-          onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          },
-        ),
+        backgroundColor: const Color.fromRGBO(3, 169, 244, 1), // Sky blue color
       ),
     );
+  }
+
+  Future<void> _navigateToEditSection(String section) async {
+    // Implement navigation to the relevant section
+    // You can create separate screens for each section or handle it within this screen
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(0, 9, 41, 1.0),
+        backgroundColor: const Color.fromRGBO(0, 0, 41, 1.0),
         title: const Text(
           'Edit Society',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-      body: Container(
-        color: const Color.fromRGBO(0, 9, 41, 1.0), // Set background color to dark blue
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextFormField(
-                  initialValue: _name,
-                  decoration: const InputDecoration(
-                    labelText: 'Society Name',
-                    labelStyle: TextStyle(color: Colors.white),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                  ),
-                  style: const TextStyle(color: Colors.white),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter the society name';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _name = value!;
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  initialValue: _description,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    labelStyle: TextStyle(color: Colors.white),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                  ),
-                  style: const TextStyle(color: Colors.white),
-                  maxLines: 3,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter the description';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _description = value!;
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  initialValue: _category,
-                  decoration: const InputDecoration(
-                    labelText: 'Category',
-                    labelStyle: TextStyle(color: Colors.white),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                  ),
-                  style: const TextStyle(color: Colors.white),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter the category';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _category = value!;
-                  },
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      _formKey.currentState!.save();
-
-                      // Update society details in the database
-                      await SocietyDB.updateSociety(
-                        widget.society.name, // Pass society name for update
-                        _name,
-                        _description,
-                        _category,
-                      );
-
-                      _showToast('Society updated successfully', Colors.lightBlueAccent);
-                      // ignore: use_build_context_synchronously
-                      Navigator.pop(context);
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.lightBlueAccent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                  child: Container(
-                    width: double.infinity,
-                    height: 50,
-                    alignment: Alignment.center,
-                    child: const Text(
-                      'Update Society',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: Container(
+        color: const Color.fromRGBO(0, 0, 41, 1.0),
+        padding: const EdgeInsets.all(16.0),
+        child: !_isAuthorized
+            ? Column(
+                children: [
+                  const Text(
+                    'Enter Admin ID to edit society details:',
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: _adminIdController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      hintText: 'Admin ID',
+                      hintStyle: TextStyle(color: Colors.white54),
+                      filled: true,
+                      fillColor: Colors.white24,
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                    ),
+                    style: const TextStyle(color: Colors.white),
+                    onChanged: (value) {
+                      if (value.isNotEmpty && !RegExp(r'^\d+$').hasMatch(value)) {
+                        _showSnackBar('Admin ID can only contain digits');
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _validateAdmin(_adminIdController.text);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white, 
+                        backgroundColor: const Color.fromRGBO(3, 169, 244, 1), // White text color
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('Authenticate'),
+                    ),
+                  ),
+                ],
+              )
+            : ListView(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.edit, color: Colors.white),
+                    title: const Text(
+                      'Edit Society Details',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onTap: () => _navigateToEditSection('details'),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.contact_phone, color: Colors.white),
+                    title: const Text(
+                      'Edit Society Contact Info',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => EditContactDetailsScreen(adminId: _society!.adminId)));
+                    }
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.info, color: Colors.white),
+                    title: const Text(
+                      'Other Options',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onTap: () => _navigateToEditSection('other_options'),
+                  ),
+                ],
+              ),
       ),
     );
   }

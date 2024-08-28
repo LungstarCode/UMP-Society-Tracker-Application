@@ -76,10 +76,9 @@ class _LoginScreenState extends State<LoginScreen> {
           MaterialPageRoute(
             builder: (_) => HomeScreen(
               email: user['email'],
-              userType: userType,
               fullName: user['name'] + ' ' + user['surname'],
               position: userType == 'Admin' ? user['position'] : '',
-              societyName: userType == 'Admin' ? user['societyName'] : '',
+              societyName: userType == 'Admin' ? user['societyName'] : '', userType: '',
             ),
           ),
         );

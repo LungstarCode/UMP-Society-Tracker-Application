@@ -254,8 +254,29 @@ class SocietyDB {
         'description': description,
         'category': category,
       },
-      where: 'id = ?', // Adjust this based on your actual database schema
+      where: 'id = ?', 
       whereArgs: [id],
     );
+}
+
+static Future<Society?> retrieveSocietyByName(String name) async {
+  final Database db = await _initializeDB();
+  final List<Map<String, dynamic>> result = await db.query(
+    'societies',
+    where: 'name = ?',
+    whereArgs: [name],
+  );
+
+  if (result.isNotEmpty) {
+    return Society(
+      name: result[0]['name'],
+      description: result[0]['description'],
+      category: result[0]['category'],
+      pinned: result[0]['pinned'] == 1,
+      adminNames: result[0]['admin_names'],
+      adminId: result[0]['admin_id'],
+    );
+  }
+  return null;
 }
 }

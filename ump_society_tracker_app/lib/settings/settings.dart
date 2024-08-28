@@ -180,11 +180,12 @@ class SettingsScreen extends StatelessWidget {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (_) => const HomeScreen(
-                        email: '',
-                        userType: '',
+                     
                         fullName: '',
                         position: '',
                         societyName: '',
+                         userType: '', 
+                         email: '',
                       ),
                     ),
                   );

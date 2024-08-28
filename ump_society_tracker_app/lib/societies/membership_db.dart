@@ -120,4 +120,22 @@ class MembershipDB {
       return queryResult[i]['society_name'] ?? '';
     });
   }
+
+  static Future<List<Member>> retrieveUserSocieties(String studentId) async {
+  final db = await _initializeDB();
+  final List<Map<String, dynamic>> queryResult = await db.query(
+    'members',
+    where: 'student_id = ?',
+    whereArgs: [studentId],
+  );
+
+  return List.generate(queryResult.length, (i) {
+    return Member(
+      studentId: queryResult[i]['student_id'] ?? '',
+      name: queryResult[i]['name'] ?? '',
+      surname: queryResult[i]['surname'] ?? '',
+      societyName: queryResult[i]['society_name'] ?? '',
+    );
+  });
+}
 }
